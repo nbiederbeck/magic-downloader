@@ -7,5 +7,5 @@ setup(
     version="0.1",
     description="Compare timing information from the IACTs MAGIC and FACT",
     packages=find_packages(),
-    install_requires=["requests", "bs4", "tqdm", "glob"],
+    install_requires=["requests", "bs4", "tqdm"],
 )
