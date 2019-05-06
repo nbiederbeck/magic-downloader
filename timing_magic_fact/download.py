@@ -10,7 +10,13 @@ class MAGICDownloader:
         self.user = user
         self.password = password
 
-    def download_files(self, urls: list, output_directory: str = ".", chunk_size=1024):
+    def download_files(
+        self,
+        urls: list,
+        output_directory: str = ".",
+        ignore_pattern=None,
+        chunk_size=1024,
+    ):
         makedirs(output_directory, exist_ok=True)
         for url in urls:
             page = requests.get(url, auth=(self.user, self.password))
@@ -23,15 +29,16 @@ class MAGICDownloader:
 
             for link in download_links:
                 filename = link.attrs["download"]
-                if "superstar" in filename:
-                    print(f"{filename} not a Data file, not downloading.")
-                    continue
+                if ignore_pattern is not None:
+                    if ignore_pattern in filename:
+                        print(f"Ignoring {filename}")
+                        continue
                 local_filename = f"{output_directory}/{filename}"
                 if path.exists(local_filename):
-                    print(f"{local_filename} exists, not downloading.")
+                    print(f"Not downloading existing {local_filename}")
                     continue
                 download_url = url + filename
-                print(f"Getting {download_url}")
+                print(f"Downloading {download_url}")
                 stream = requests.get(
                     download_url, stream=True, auth=(self.user, self.password)
                 )
