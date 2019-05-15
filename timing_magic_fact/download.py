@@ -16,6 +16,7 @@ class MAGICDownloader:
         output_directory: str = ".",
         ignore_pattern=None,
         chunk_size=1024,
+        skip=True,
     ):
         makedirs(output_directory, exist_ok=True)
         for url in urls:
@@ -25,10 +26,12 @@ class MAGICDownloader:
                 print(f"No data found for {day}")
                 continue
             soup = bs4.BeautifulSoup(page.text, "lxml")
-            download_links = soup.find_all("a", download=True)
+            table_rows = soup.find_all("tr")
 
-            for link in download_links:
-                filename = link.attrs["download"]
+            # skip table header row
+            for row in table_rows[1:]:
+                file = row.find_all("a", download=True)[0]
+                filename = file.attrs["download"]
                 if ignore_pattern is not None:
                     if ignore_pattern in filename:
                         print(f"Ignoring {filename}")
@@ -38,10 +41,23 @@ class MAGICDownloader:
                     print(f"Not downloading existing {local_filename}")
                     continue
                 download_url = url + filename
-                print(f"Downloading {download_url}")
-                stream = requests.get(
-                    download_url, stream=True, auth=(self.user, self.password)
-                )
+                try:
+                    availability = row.find_all("i")[0].attrs["title"]
+                except KeyError:
+                    availability = row.find_all("span")[0].attrs["title"]
+                print(file.attrs["title"])
+                print(availability)
+                try:
+                    stream = requests.get(
+                        download_url,
+                        stream=True,
+                        auth=(self.user, self.password),
+                        timeout=5,
+                    )
+                except requests.exceptions.ReadTimeout:
+                    if availability.startswith("Reading") and skip:
+                        print("Skipping. Try again later.")
+                        continue
                 file_size = stream.headers["content-length"]
                 with open(local_filename, "wb") as f:
                     for chunk in tqdm(
