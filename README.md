@@ -1,9 +1,9 @@
-# timing-magic-fact
-Compare timing information from the IACTs MAGIC and FACT
+# MAGIC Downloader
+Download MAGIC data.
 
 ## Installation
 ```
-pip install git+https://github.com/noahhdf/timing-magic-fact.git
+pip install git+https://github.com/noahhdf/magic-downloader.git
 ```
 
 ## Usage
