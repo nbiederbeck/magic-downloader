@@ -15,6 +15,7 @@ class MAGICDownloader:
         urls: list,
         output_directory: str = ".",
         ignore_pattern=None,
+        use_pattern=None,
         chunk_size=1024,
         skip=True,
     ):
@@ -34,6 +35,10 @@ class MAGICDownloader:
                 filename = file.attrs["download"]
                 if ignore_pattern is not None:
                     if ignore_pattern in filename:
+                        print(f"Ignoring {filename}")
+                        continue
+                if use_pattern is not None:
+                    if use_pattern not in filename:
                         print(f"Ignoring {filename}")
                         continue
                 local_filename = f"{output_directory}/{filename}"
